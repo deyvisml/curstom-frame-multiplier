@@ -1,0 +1,393 @@
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/thomas-lowry/figma-plugin-ds/dist/figma-plugin-ds.css"
+/>
+
+<style>
+  * {
+    margin: 0px;
+    padding: 0px;
+  }
+
+  body {
+    padding: 2em;
+  }
+
+  p {
+    display: block;
+  }
+
+  p.author {
+    margin: 10px 0px 20px !important;
+    font-size: 13px;
+    color: gray;
+  }
+
+  h4 {
+    margin: 10px 0px;
+  }
+
+  table,
+  th,
+  td {
+    border: 0.5px solid black;
+    font-size: 13px !important;
+  }
+
+  table {
+    overflow: hidden;
+    margin: 15px 0px !important;
+    border-collapse: collapse;
+    border-style: hidden; /* hide standard table (collapsed) border */
+    box-shadow: 0 0 0 1px #666; /* this draws the table border  */
+    border-radius: 5px !important;
+  }
+
+  th {
+    background-color: lightskyblue;
+    padding: 5px !important;
+  }
+
+  td {
+    border: 1px solid black;
+    padding: 2px !important;
+  }
+
+  tr.enabled_text_node {
+    background-color: white;
+  }
+
+  tr.disabled_text_node {
+    background-color: #eee;
+  }
+
+  /* Table */
+  .change_col {
+    width: 5%;
+    margin: 0px !important;
+    padding: 0px !important;
+    text-align: center !important;
+  }
+
+  .name_col {
+    width: 25% !important;
+  }
+
+  .value_col {
+    width: 70% !important;
+    padding: 0px 20px !important;
+  }
+
+  .change_checkbox {
+    transform: scale(1.2);
+  }
+
+  label {
+    word-wrap: break-word !important;
+    width: 150px;
+    display: block !important;
+  }
+
+  .value_textarea {
+    width: 100%;
+    min-height: 25px;
+    resize: vertical;
+    white-space: nowrap;
+    background-color: transparent;
+  }
+
+  .text_node > td {
+    padding: 5px 2px !important;
+  }
+
+  /* options second part*/
+  .container_num_copies,
+  .container_keep_copies {
+    margin-top: 10px;
+    font-size: 13px;
+  }
+
+  .container_num_copies > *,
+  .container_keep_copies > * {
+    display: inline-block !important;
+  }
+
+  .container_num_copies label {
+    width: 130px;
+  }
+
+  .container_num_copies input {
+    width: 50px;
+  }
+
+  .container_keep_copies {
+    position: relative;
+  }
+
+  .container_keep_copies input {
+    position: absolute;
+    transform: scale(1.2);
+    top: 1px !important;
+  }
+
+  .container_keep_copies label {
+    margin-left: 20px;
+    width: auto;
+  }
+  .container_error_message {
+    margin: 10px 0px !important;
+  }
+
+  .container_error_message > p {
+    font-size: 12px;
+    width: 100%;
+    display: block;
+    color: white;
+    background-color: #ff6961;
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+
+  .container_main_buttons {
+    margin-top: 15px !important;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .container_main_buttons button {
+    cursor: pointer;
+  }
+
+  button.button--primary-destructive {
+    margin-left: 10px;
+  }
+</style>
+
+<h2>Generate PDFs from a Frame template</h2>
+
+<p class="author">Powered by: Deyvis Mamani Lacuta</p>
+
+<h4>1. Set custom values</h4>
+
+<div class="onboarding-tip">
+  <div class="icon icon--styles icon--warning icon--hot-pink"></div>
+  <div class="onboarding-tip__msg">
+    If you set values for more than one field, so their need to have the same
+    number of values <strong>(each value in one line)</strong>.
+  </div>
+</div>
+
+<table style="width: 100%" class="table_text_nodes" id="table_text_nodes">
+  <tr>
+    <th class="change_col"></th>
+    <th class="name_col">Field</th>
+    <th class="value_col">Value</th>
+  </tr>
+
+  <!--In this part we add tr elements from js :) -->
+</table>
+
+<h4>2. Generals</h4>
+
+<div class="container_num_copies">
+  <label for="">Number of copies:</label>
+  <input type="number" class="num_copies_input" name="" id="" min="1" />
+</div>
+
+<div class="container_keep_copies">
+  <input type="checkbox" name="" id="keep_copies" />
+  <label for="keep_copies">Keep copies in UI?</label>
+</div>
+
+<div class="container_error_message"></div>
+
+<div class="container_main_buttons">
+  <div>
+    <button class="button button--primary" id="generate_btn">Generate</button>
+  </div>
+
+  <button class="button button--primary-destructive" id="cancel_btn">
+    Cancel
+  </button>
+</div>
+
+<script>
+  const handle_change_checkbox = (checkbox_element) => {
+    console.log("checkbox_element:", checkbox_element);
+    const id_text_node = checkbox_element.dataset.id_text_node;
+
+    const text_node_element = document.querySelector(
+      "#text_node_" + id_text_node
+    );
+    const text_area_node_element = document.querySelector(
+      "#text_area_" + id_text_node
+    );
+    console.log("id_text_node:", id_text_node);
+    console.log("text_node:", text_node_element);
+
+    if (checkbox_element.checked) {
+      text_node_element.classList.remove("disabled_text_node");
+      text_node_element.classList.add("enable_text_node");
+      text_area_node_element.disabled = false;
+    } else {
+      text_node_element.classList.remove("enable_text_node");
+      text_node_element.classList.add("disabled_text_node");
+      text_area_node_element.disabled = true;
+    }
+  };
+
+  onmessage = (event) => {
+    const data = event.data.pluginMessage;
+    const text_nodes = data.text_nodes;
+
+    const table_element = document.querySelector("#table_text_nodes");
+
+    for (const text_node of text_nodes) {
+      let id_text_node = text_node.id.replace(":", "_");
+      let name_text_node = text_node.name_text_node;
+      let value_text_node = text_node.characters;
+
+      console.log("id_text_node -> ", id_text_node);
+      console.log("name_text_node -> ", name_text_node);
+      console.log("value_text_node -> ", value_text_node);
+
+      tr_text_node_element = `<tr class="text_node disabled_text_node" id="text_node_${id_text_node}"  data-id_text_node="${id_text_node}" data-name_text_node="${name_text_node}">
+                                <td class="change_col">
+                                  <input
+                                    type="checkbox"
+                                    class="change_checkbox"
+                                    id="checkbox_${id_text_node}"
+                                    onclick="handle_change_checkbox(this);"
+                                    data-id_text_node="${id_text_node}"
+                                  />
+                                </td>
+                                <td class="name_col">
+                                  <label class="name_label" for="checkbox_${id_text_node}">${name_text_node}</label>
+                                </td>
+                                <td class="value_col">
+                                  <textarea class="value_textarea" id="text_area_${id_text_node}" disabled>${value_text_node}</textarea>
+                                </td>
+                              </tr>`;
+
+      table_element.insertAdjacentHTML("beforeend", tr_text_node_element);
+    }
+  };
+
+  document.querySelector("#generate_btn").onclick = () => {
+    const enable_text_nodes = document.querySelectorAll(".enable_text_node");
+
+    const change_one_data = {};
+    const change_many_data = {};
+
+    const container_error_message = document.querySelector(
+      ".container_error_message"
+    );
+    container_error_message.innerHTML = "";
+    const error_message = document.createElement("p");
+
+    if (enable_text_nodes.length > 0) {
+      // TODO: verificar que el valor establecido en el textarea de todos los nodos habilitados tengan la misma cantidad de lineas
+      let entered_first_time = false;
+      const save_first_text_node = {};
+      let data_verified = true;
+
+      for (const element of enable_text_nodes) {
+        let id_text_node = element.dataset.id_text_node;
+        let name_text_node = element.dataset.name_text_node;
+        let value_textarea = element.querySelector("textarea").value;
+        let values = value_textarea.split("\n");
+
+        if (values.length > 1) {
+          if (!entered_first_time) {
+            entered_first_time = true;
+            save_first_text_node.num_values = values.length;
+            save_first_text_node.name_text_node = name_text_node;
+          } else if (save_first_text_node.num_values != values.length) {
+            data_verified = false;
+
+            error_message.innerText = `Error, los campos ${save_first_text_node.name_text_node} y ${name_text_node} no tienen la misma cantidad de valores establecidos (lineas).`;
+            container_error_message.insertAdjacentElement(
+              "afterbegin",
+              error_message
+            );
+            return;
+          }
+          change_many_data[id_text_node] = values;
+        } else {
+          change_one_data[id_text_node] = values;
+        }
+      }
+    }
+
+    const num_copies = document.querySelector(".num_copies_input").value;
+    if (num_copies < 1) {
+      error_message.innerText = "Error, el numero de copias es invalido";
+      container_error_message.insertAdjacentElement(
+        "afterbegin",
+        error_message
+      );
+      return;
+    }
+
+    const keep_copies = document.querySelector("#keep_copies").checked;
+
+    /*Send message to the code.ts*/
+    /*
+    console.log("-> num_copies: ", num_copies);
+    console.log("-> keep_copies: ", keep_copies);
+    console.log("-> change_one_data:", change_one_data);
+    console.log("-> change_many_data:", change_many_data);*/
+
+    parent.postMessage(
+      {
+        pluginMessage: {
+          action: "generate",
+          num_copies,
+          keep_copies,
+          change_one_data,
+          change_many_data,
+        },
+      },
+      "*"
+    );
+  };
+
+  document.querySelector("#cancel_btn").onclick = () => {
+    parent.postMessage(
+      {
+        pluginMessage: {
+          action: "close",
+        },
+      },
+      "*"
+    );
+  };
+
+  document.querySelector("html").onclick = () => {
+    const enable_text_nodes = document.querySelectorAll(".enable_text_node");
+
+    let all_value_nodes_have_length_one = true;
+    let aux_length = 0;
+    for (const element of enable_text_nodes) {
+      let value_textarea = element.querySelector("textarea").value;
+      let values = value_textarea.split("\n");
+
+      if (values.length !== 1) {
+        all_value_nodes_have_length_one = false;
+        aux_length = values.length;
+        break;
+      }
+    }
+
+    // input activo si no hay ningun nodo habilitado o si el numero de valores de los nodos habilitados es de tamaño 1
+    const input_num_copies = document.querySelector(".num_copies_input");
+
+    if (enable_text_nodes.length === 0 || all_value_nodes_have_length_one) {
+      input_num_copies.disabled = false;
+    } else {
+      input_num_copies.disabled = true;
+      input_num_copies.value = aux_length;
+    }
+  };
+</script>
